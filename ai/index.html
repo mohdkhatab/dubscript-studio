@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DubScript Studio AI — by Prime Khatab Services</title>
+<style>
+  :root{
+    --bg:#0d0f14; --panel:#151923; --panel2:#1b2130; --border:#2a3247;
+    --text:#e8ecf4; --muted:#9aa6bd; --amber:#f5a623; --amber2:#ffbe55;
+    --green:#2ecc71; --yellow:#f1c40f; --red:#e74c3c; --violet:#9b7bff;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{background:var(--bg); color:var(--text); font-family:"Segoe UI",system-ui,Arial,sans-serif; min-height:100vh;}
+  header{background:linear-gradient(135deg,#151923,#1b2130); border-bottom:2px solid var(--amber); padding:20px 28px;}
+  header h1{font-size:28px; letter-spacing:.5px;}
+  header h1 span{color:var(--amber);}
+  header h1 .ai{color:var(--violet); font-size:15px; vertical-align:super; border:1px solid var(--violet); border-radius:20px; padding:2px 10px; margin-left:8px; letter-spacing:1px;}
+  header p{color:var(--muted); margin-top:4px; font-size:14px;}
+  .brand{color:var(--amber2); font-weight:600;}
+  main{max-width:1180px; margin:0 auto; padding:22px 18px 60px;}
+  .card{background:var(--panel); border:1px solid var(--border); border-radius:12px; padding:18px; margin-bottom:18px;}
+  .card h2{font-size:16px; margin-bottom:12px; color:var(--amber2);}
+  .card.ai{border-color:var(--violet);}
+  .card.ai h2{color:var(--violet);}
+  .row{display:flex; flex-wrap:wrap; gap:10px; align-items:center;}
+  button{background:var(--amber); color:#14100a; border:none; padding:10px 16px; border-radius:8px;
+    font-weight:700; cursor:pointer; font-size:14px;}
+  button:hover{background:var(--amber2);}
+  button.ghost{background:var(--panel2); color:var(--text); border:1px solid var(--border);}
+  button.ghost:hover{border-color:var(--amber); color:var(--amber2);}
+  button.violet{background:var(--violet); color:#17102e;}
+  button.violet:hover{background:#b198ff;}
+  button:disabled{opacity:.45; cursor:not-allowed;}
+  label.filebtn{background:var(--panel2); border:1px dashed var(--amber); color:var(--amber2);
+    padding:10px 16px; border-radius:8px; cursor:pointer; font-weight:600; font-size:14px;}
+  input[type=file]{display:none;}
+  textarea{width:100%; background:var(--panel2); color:var(--text); border:1px solid var(--border);
+    border-radius:8px; padding:10px; font-family:Consolas,monospace; font-size:13px; min-height:110px; margin-top:10px;}
+  #dropzone{border:2px dashed var(--border); border-radius:10px; padding:14px; text-align:center; color:var(--muted); font-size:13px; margin-top:10px;}
+  #dropzone.over{border-color:var(--amber); color:var(--amber2);}
+  .stats{display:flex; flex-wrap:wrap; gap:12px;}
+  .stat{background:var(--panel2); border:1px solid var(--border); border-radius:10px; padding:10px 16px; min-width:130px;}
+  .stat b{display:block; font-size:22px; color:var(--amber2);}
+  .stat span{font-size:12px; color:var(--muted);}
+  table{width:100%; border-collapse:collapse; font-size:14px;}
+  th{background:var(--panel2); color:var(--amber2); text-align:left; padding:10px 8px; border-bottom:2px solid var(--amber); position:sticky; top:0;}
+  td{padding:8px; border-bottom:1px solid var(--border); vertical-align:top;}
+  tr:hover td{background:#171d2b;}
+  .time{font-family:Consolas,monospace; font-size:12px; color:var(--muted); white-space:nowrap;}
+  .dur{font-family:Consolas,monospace; font-size:12px; white-space:nowrap;}
+  .orig{max-width:280px; line-height:1.45;}
+  .dub{width:100%; background:var(--panel2); color:var(--text); border:1px solid var(--border);
+    border-radius:6px; padding:8px; font-size:14px; min-height:52px; font-family:inherit; resize:vertical;}
+  .dub:focus{outline:none; border-color:var(--amber);}
+  .fit{font-size:12px; font-weight:700; padding:4px 8px; border-radius:20px; white-space:nowrap; display:inline-block;}
+  .fit.ok{background:rgba(46,204,113,.15); color:var(--green); border:1px solid var(--green);}
+  .fit.tight{background:rgba(241,196,15,.12); color:var(--yellow); border:1px solid var(--yellow);}
+  .fit.long{background:rgba(231,76,60,.12); color:var(--red); border:1px solid var(--red);}
+  .fit.empty{background:var(--panel2); color:var(--muted); border:1px solid var(--border);}
+  .fit.err{background:rgba(231,76,60,.18); color:#ff8a7a; border:1px solid var(--red);}
+  .cps{display:block; margin-top:5px; font-size:11px; color:var(--muted); font-family:Consolas,monospace;}
+  .empty-msg{color:var(--muted); text-align:center; padding:34px 10px; font-size:14px;}
+  footer{text-align:center; color:var(--muted); font-size:12px; padding:18px;}
+  footer .brand{font-size:12px;}
+  .hint{font-size:12px; color:var(--muted); margin-top:8px; line-height:1.5;}
+  .ai-grid{display:grid; grid-template-columns:1fr 1fr; gap:12px;}
+  @media (max-width:720px){ .ai-grid{grid-template-columns:1fr;} }
+  .field label{display:block; font-size:12px; color:var(--muted); margin-bottom:5px; font-weight:600;}
+  .field input{width:100%; background:var(--panel2); color:var(--text); border:1px solid var(--border);
+    border-radius:8px; padding:10px; font-size:13px; font-family:Consolas,monospace;}
+  .field input:focus{outline:none; border-color:var(--violet);}
+  .field.wide{grid-column:1 / -1;}
+  .check{display:flex; align-items:center; gap:8px; font-size:13px; color:var(--text); cursor:pointer;}
+  .check input{width:16px; height:16px; accent-color:var(--violet);}
+  #aiProgressWrap{display:none; margin-top:14px;}
+  #aiProgressBarOuter{background:var(--panel2); border:1px solid var(--border); border-radius:20px; height:16px; overflow:hidden;}
+  #aiProgressBar{height:100%; width:0%; background:linear-gradient(90deg,var(--violet),var(--amber)); transition:width .25s;}
+  #aiStatus{font-size:13px; margin-top:10px; line-height:1.55; min-height:20px;}
+  #aiStatus.err{color:#ff8a7a;}
+  #aiStatus.ok{color:var(--green);}
+</style>
+</head>
+<body>
+<header>
+  <h1>Dub<span>Script</span> Studio<span class="ai">AI</span></h1>
+  <p>An AI dubbing sheet builder for video dubbing creators — by <span class="brand">Prime Khatab Services</span></p>
+</header>
+<main>
+
+  <section class="card">
+    <h2>1 · Load subtitles</h2>
+    <div class="row">
+      <label class="filebtn" for="fileInput">Upload .srt file</label>
+      <input type="file" id="fileInput" accept=".srt,.txt">
+      <button class="ghost" id="loadSampleBtn" type="button">Load demo lines</button>
+      <button class="ghost" id="parsePasteBtn" type="button">Use pasted text</button>
+      <button class="ghost" id="clearBtn" type="button">Clear</button>
+    </div>
+    <div id="dropzone">…or drag &amp; drop an .srt file anywhere here</div>
+    <textarea id="pasteBox" placeholder="…or paste SRT content here, e.g.&#10;&#10;1&#10;00:00:01,000 --> 00:00:03,500&#10;Your subtitle line"></textarea>
+    <p class="hint">Works 100% offline. No uploads leave your computer — everything runs in this page.</p>
+  </section>
+
+  <section class="card ai">
+    <h2>2 · AI agent — auto-fill Hindi dub lines (optional)</h2>
+    <div class="ai-grid">
+      <div class="field">
+        <label for="aiBase">API base URL (any OpenAI-compatible endpoint)</label>
+        <input type="text" id="aiBase" value="https://api.hilinkup.com/v1" spellcheck="false" autocomplete="off">
+      </div>
+      <div class="field">
+        <label for="aiModel">Model</label>
+        <input type="text" id="aiModel" value="deepseek/deepseek-v4.1-flash-1017" spellcheck="false" autocomplete="off">
+      </div>
+      <div class="field wide">
+        <label for="aiKey">Your API key — stored only in this browser (localStorage), sent only to the endpoint above</label>
+        <input type="password" id="aiKey" placeholder="Paste your own API key here (e.g. sk-…)" spellcheck="false" autocomplete="off">
+      </div>
+    </div>
+    <div class="row" style="margin-top:14px;">
+      <button class="violet" id="aiFillBtn" type="button">AI: fill all Hindi lines</button>
+      <button class="ghost" id="aiStopBtn" type="button" disabled>Stop</button>
+      <button class="ghost" id="aiTestBtn" type="button">Test connection</button>
+      <label class="check"><input type="checkbox" id="aiSkip" checked> Skip lines already written</label>
+    </div>
+    <div id="aiProgressWrap">
+      <div id="aiProgressBarOuter"><div id="aiProgressBar"></div></div>
+    </div>
+    <p id="aiStatus"></p>
+    <p class="hint">Bring your own key — DubScript Studio AI has no server and no built-in key. Your key never leaves
+      this browser except to call the endpoint <b>you</b> set above. For every subtitle cue, the AI writes a spoken
+      Hinglish line (Devanagari script, everyday English words kept) sized to that cue's slot at ≈14 characters/second,
+      so the fit-check below can verify it. No key? The manual sheet below still works 100% offline, exactly like v1.</p>
+  </section>
+
+  <section class="card">
+    <h2>3 · Dubbing sheet</h2>
+    <div class="stats">
+      <div class="stat"><b id="statTotal">0</b><span>Total lines</span></div>
+      <div class="stat"><b id="statDone">0</b><span>Dub lines written</span></div>
+      <div class="stat"><b id="statLong">0</b><span>Too long for slot</span></div>
+      <div class="stat"><b id="statTight">0</b><span>Tight fit</span></div>
+    </div>
+    <p class="hint">Fit guide (spoken Hindi ≈ 12–16 characters/second): <b style="color:var(--green)">Fits</b> = comfortable ·
+      <b style="color:var(--yellow)">Tight</b> = speak fast · <b style="color:var(--red)">Too long</b> = shorten the line or it will not fit the scene.</p>
+    <div style="overflow-x:auto; margin-top:10px;">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>Timing</th><th>Slot</th><th>Original line</th><th>Hindi dub line (edit me)</th><th>Fit check</th>
+          </tr>
+        </thead>
+        <tbody id="sheetBody">
+          <tr><td colspan="6" class="empty-msg">No lines yet — upload an .srt file, paste SRT text, or load the demo lines.</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>4 · Export</h2>
+    <div class="row">
+      <button id="exportCsvBtn" type="button" disabled>Download dubbing sheet (.csv)</button>
+      <button id="exportSrtBtn" type="button" disabled>Download dubbed subtitles (.srt)</button>
+    </div>
+    <p class="hint">CSV opens in Excel / Google Sheets for voice artists. The SRT export uses your Hindi dub lines (original line is kept where a dub line is still empty), ready to burn into the video or upload to YouTube.</p>
+  </section>
+
+</main>
+<footer>DubScript Studio AI · Built by <span class="brand">Prime Khatab Services</span> · Free · Bring your own API key · MIT licensed</footer>
+
+<script>
+"use strict";
+/* ================= SRT parsing (pure, testable) ================= */
+function srtTimeToSeconds(t) {
+  var m = String(t).trim().match(/(\d+):(\d+):(\d+)[,.](\d+)/);
+  if (!m) return 0;
+  return (+m[1]) * 3600 + (+m[2]) * 60 + (+m[3]) + (+m[4]) / 1000;
+}
+function secondsToSrtTime(sec) {
+  sec = Math.max(0, sec);
+  var h = Math.floor(sec / 3600), m = Math.floor((sec % 3600) / 60),
+      s = Math.floor(sec % 60), ms = Math.round((sec - Math.floor(sec)) * 1000);
+  if (ms === 1000) { ms = 0; s += 1; }
+  function p(n, l) { return String(n).padStart(l, "0"); }
+  return p(h,2) + ":" + p(m,2) + ":" + p(s,2) + "," + p(ms,3);
+}
+// === PARSE_START ===
+function parseSRT(text) {
+  var clean = String(text).replace(/\r\n/g, "\n").replace(/\r/g, "\n").replace(/^\uFEFF/, "");
+  var blocks = clean.split(/\n\s*\n/);
+  var cues = [];
+  blocks.forEach(function (block) {
+    var lines = block.split("\n").map(function (l) { return l.trim(); }).filter(function (l) { return l !== ""; });
+    if (!lines.length) return;
+    var timeIdx = lines.findIndex(function (l) { return l.indexOf("-->") !== -1; });
+    if (timeIdx === -1) return;
+    var parts = lines[timeIdx].split("-->");
+    var start = srtTimeToSeconds(parts[0]);
+    var end = srtTimeToSeconds(parts[1]);
+    var idx = cues.length + 1;
+    if (timeIdx > 0 && /^\d+$/.test(lines[0])) idx = parseInt(lines[0], 10);
+    var textLines = lines.slice(timeIdx + 1);
+    if (!textLines.length) return;
+    cues.push({ index: idx, start: start, end: end, duration: Math.max(0, end - start), text: textLines.join("\n") });
+  });
+  return cues;
+}
+// === PARSE_END ===
+function fitStatus(dubText, duration) {
+  var len = dubText.replace(/\s+/g, " ").trim().length;
+  if (!len) return { key: "empty", label: "Not written", cps: 0, len: 0 };
+  if (!duration) return { key: "tight", label: "No slot time", cps: 0, len: len };
+  var cps = len / duration;
+  if (cps <= 16) return { key: "ok", label: "Fits ✓", cps: cps, len: len };
+  if (cps <= 20) return { key: "tight", label: "Tight — speak fast", cps: cps, len: len };
+  return { key: "long", label: "Too long ✗ shorten it", cps: cps, len: len };
+}
+
+/* ================= App state & UI ================= */
+var cues = [];   // parsed cues
+var dubs = {};   // cue position -> dub line text
+
+var DEMO_SRT = [
+"1","00:00:01,000 --> 00:00:03,500","You dare to challenge the Heavenly Sword Sect?","",
+"2","00:00:04,000 --> 00:00:06,200","Master, his cultivation has broken through again!","",
+"3","00:00:06,800 --> 00:00:09,500","Impossible. Three days ago he was only at the third level.","",
+"4","00:00:10,000 --> 00:00:12,400","Senior brother, the tournament begins at sunrise.","",
+"5","00:00:13,000 --> 00:00:15,600","If I lose tomorrow, the whole clan will suffer.","",
+"6","00:00:16,200 --> 00:00:18,900","Then do not lose. I will teach you the forbidden technique tonight.","",
+"7","00:00:19,500 --> 00:00:22,000","But master, that technique destroyed an entire army!","",
+"8","00:00:22,600 --> 00:00:25,800","Power always has a price. Are you willing to pay it?","",
+"9","00:00:26,400 --> 00:00:29,000","For my family, I will pay any price.","",
+"10","00:00:29,600 --> 00:00:32,500","Good. Then let the heavens witness your oath.",""
+].join("\n");
+
+function esc(s) {
+  return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+function loadText(text) {
+  cues = parseSRT(text);
+  dubs = {};
+  render();
+  if (!cues.length) alert("No subtitle cues found. Please check the SRT format.");
+}
+function updateFitCell(pos) {
+  var ta = document.querySelector('.dub[data-pos="' + pos + '"]');
+  if (!ta) return;
+  var row = ta.closest("tr");
+  var cell = row.querySelector(".fit");
+  var fit = fitStatus(ta.value, cues[pos].duration);
+  cell.className = "fit " + fit.key;
+  cell.textContent = fit.label;
+  var cpsEl = row.querySelector(".cps");
+  if (cpsEl) cpsEl.textContent = ta.value.trim() ? (fit.len + " chars · " + fit.cps.toFixed(1) + " chars/sec") : "";
+}
+function markRowError(pos, msg) {
+  var ta = document.querySelector('.dub[data-pos="' + pos + '"]');
+  if (!ta) return;
+  var cell = ta.closest("tr").querySelector(".fit");
+  cell.className = "fit err";
+  cell.textContent = "AI error — retry";
+  cell.title = msg || "";
+}
+function render() {
+  var body = document.getElementById("sheetBody");
+  var done = 0, longs = 0, tights = 0;
+  if (!cues.length) {
+    body.innerHTML = '<tr><td colspan="6" class="empty-msg">No lines yet — upload an .srt file, paste SRT text, or load the demo lines.</td></tr>';
+  } else {
+    body.innerHTML = cues.map(function (cue, i) {
+      var dub = dubs[i] || "";
+      var fit = fitStatus(dub, cue.duration);
+      if (dub.trim()) done++;
+      if (fit.key === "long") longs++;
+      if (fit.key === "tight") tights++;
+      return "<tr>" +
+        "<td>" + cue.index + "</td>" +
+        '<td class="time">' + secondsToSrtTime(cue.start) + "<br>→ " + secondsToSrtTime(cue.end) + "</td>" +
+        '<td class="dur">' + cue.duration.toFixed(1) + "s</td>" +
+        '<td class="orig">' + esc(cue.text).replace(/\n/g, "<br>") + "</td>" +
+        '<td><textarea class="dub" data-pos="' + i + '" placeholder="यहाँ Hindi dub line लिखो…">' + esc(dub) + "</textarea></td>" +
+        '<td><span class="fit ' + fit.key + '">' + fit.label + '</span>' +
+          (dub.trim() ? '<span class="cps">' + fit.len + " chars · " + fit.cps.toFixed(1) + " chars/sec</span>" : "") +
+        "</td></tr>";
+    }).join("");
+  }
+  document.getElementById("statTotal").textContent = cues.length;
+  document.getElementById("statDone").textContent = done;
+  document.getElementById("statLong").textContent = longs;
+  document.getElementById("statTight").textContent = tights;
+  document.getElementById("exportCsvBtn").disabled = !cues.length;
+  document.getElementById("exportSrtBtn").disabled = !cues.length;
+  body.querySelectorAll(".dub").forEach(function (ta) {
+    ta.addEventListener("input", function () {
+      dubs[+ta.getAttribute("data-pos")] = ta.value;
+      refreshStatsOnly();
+      updateFitCell(+ta.getAttribute("data-pos"));
+    });
+  });
+}
+function refreshStatsOnly() {
+  var done = 0, longs = 0, tights = 0;
+  cues.forEach(function (cue, i) {
+    var dub = dubs[i] || "";
+    var fit = fitStatus(dub, cue.duration);
+    if (dub.trim()) done++;
+    if (fit.key === "long") longs++;
+    if (fit.key === "tight") tights++;
+  });
+  document.getElementById("statDone").textContent = done;
+  document.getElementById("statLong").textContent = longs;
+  document.getElementById("statTight").textContent = tights;
+}
+function download(filename, content, mime) {
+  var blob = new Blob([content], { type: mime + ";charset=utf-8" });
+  var a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(function () { URL.revokeObjectURL(a.href); a.remove(); }, 300);
+}
+function csvCell(v) { return '"' + String(v).replace(/"/g, '""') + '"'; }
+function exportCSV() {
+  var rows = [["index","start","end","duration_sec","original_line","hindi_dub_line","chars","chars_per_sec","fit_status"]];
+  cues.forEach(function (cue, i) {
+    var dub = (dubs[i] || "").trim();
+    var fit = fitStatus(dub, cue.duration);
+    rows.push([cue.index, secondsToSrtTime(cue.start), secondsToSrtTime(cue.end), cue.duration.toFixed(2),
+      cue.text.replace(/\n/g, " "), dub.replace(/\n/g, " "), fit.len, fit.cps ? fit.cps.toFixed(1) : "", fit.label]);
+  });
+  download("dubbing-sheet.csv", "\uFEFF" + rows.map(function (r) { return r.map(csvCell).join(","); }).join("\r\n"), "text/csv");
+}
+function exportSRT() {
+  var out = cues.map(function (cue, i) {
+    var dub = (dubs[i] || "").trim();
+    return (i + 1) + "\n" + secondsToSrtTime(cue.start) + " --> " + secondsToSrtTime(cue.end) + "\n" + (dub || cue.text);
+  });
+  download("dubbed.srt", out.join("\n\n") + "\n", "text/plain");
+}
+
+/* ================= AI agent (bring your own key) ================= */
+var LS_BASE = "dssai.base", LS_MODEL = "dssai.model", LS_KEY = "dssai.key";
+function aiSettings() {
+  return {
+    base: document.getElementById("aiBase").value.trim().replace(/\/+$/, ""),
+    model: document.getElementById("aiModel").value.trim(),
+    key: document.getElementById("aiKey").value.trim()
+  };
+}
+function saveAiSettings() {
+  try {
+    var s = aiSettings();
+    localStorage.setItem(LS_BASE, s.base);
+    localStorage.setItem(LS_MODEL, s.model);
+    localStorage.setItem(LS_KEY, s.key);
+  } catch (e) { /* storage unavailable — settings simply won't persist */ }
+}
+function loadAiSettings() {
+  try {
+    var b = localStorage.getItem(LS_BASE), m = localStorage.getItem(LS_MODEL), k = localStorage.getItem(LS_KEY);
+    if (b) document.getElementById("aiBase").value = b;
+    if (m) document.getElementById("aiModel").value = m;
+    if (k) document.getElementById("aiKey").value = k;
+  } catch (e) { /* ignore */ }
+}
+function setAiStatus(msg, cls) {
+  var el = document.getElementById("aiStatus");
+  el.textContent = msg;
+  el.className = cls || "";
+}
+function aiPrompt(cue) {
+  var maxChars = Math.max(12, Math.floor(cue.duration * 14));
+  var system =
+    "You are an expert Hindi dubbing translator for donghua / anime / short-drama videos. " +
+    "Translate the given subtitle line into spoken Hinglish written in Devanagari script — natural, everyday spoken Hindi, " +
+    "keeping common English words (like master, level, technique, power) in English exactly as an Indian viewer would say them. " +
+    "Do NOT use bookish or pure literary Hindi. " +
+    "The dubbed line will be spoken inside a slot of " + cue.duration.toFixed(1) + " seconds at about 14 characters per second, " +
+    "so the translation MUST be at most " + maxChars + " characters long — shorter is safer. " +
+    "Keep the emotion and meaning of the original. Reply with ONLY the translated line: no quotes, no notes, no explanation.";
+  return [
+    { role: "system", content: system },
+    { role: "user", content: cue.text.replace(/\n/g, " ") }
+  ];
+}
+function aiChat(messages, maxTokens) {
+  var s = aiSettings();
+  return fetch(s.base + "/chat/completions", {
+    method: "POST",
+    headers: { "Content-Type": "application/json", "Authorization": "Bearer " + s.key },
+    body: JSON.stringify({ model: s.model, messages: messages, temperature: 0.6, max_tokens: maxTokens || 800 })
+  }).then(function (res) {
+    if (!res.ok) {
+      return res.text().then(function (t) {
+        throw new Error("HTTP " + res.status + (t ? " — " + t.replace(/\s+/g, " ").slice(0, 140) : ""));
+      });
+    }
+    return res.json();
+  }).then(function (data) {
+    var out = data && data.choices && data.choices[0] && data.choices[0].message && data.choices[0].message.content;
+    if (!out) throw new Error("Empty reply from the model");
+    return String(out).trim().replace(/^["“”']+|["“”']+$/g, "").split("\n")[0].trim();
+  });
+}
+var aiRunning = false, aiStop = false;
+function setAiRunning(on) {
+  aiRunning = on;
+  document.getElementById("aiFillBtn").disabled = on;
+  document.getElementById("aiTestBtn").disabled = on;
+  document.getElementById("aiStopBtn").disabled = !on;
+  document.getElementById("aiProgressWrap").style.display = on ? "block" : "none";
+  if (on) document.getElementById("aiProgressBar").style.width = "0%";
+}
+function aiFillAll() {
+  var s = aiSettings();
+  if (!cues.length) { setAiStatus("Load subtitle lines first (section 1), then run the AI.", "err"); return; }
+  if (!s.key) { setAiStatus("Paste your own API key first — it stays in this browser only.", "err"); document.getElementById("aiKey").focus(); return; }
+  if (!s.base || !s.model) { setAiStatus("Base URL and model must both be filled in.", "err"); return; }
+  var skip = document.getElementById("aiSkip").checked;
+  var todo = [];
+  cues.forEach(function (cue, i) { if (!skip || !(dubs[i] || "").trim()) todo.push(i); });
+  if (!todo.length) { setAiStatus("Every line already has dub text. Untick “Skip lines already written” to redo all lines.", ""); return; }
+  aiStop = false;
+  setAiRunning(true);
+  var done = 0, filled = 0, failed = [], lastErr = "";
+  function step(k) {
+    if (aiStop || k >= todo.length) {
+      setAiRunning(false);
+      var msg;
+      if (aiStop) msg = "Stopped by you. ";
+      else msg = "AI run finished. ";
+      msg += filled + " line(s) filled" +
+        (failed.length ? ", " + failed.length + " failed (cue " + failed.join(", ") + ")" + (lastErr ? " — last error: " + lastErr : "") + ". Failed rows are marked in the sheet; run again to retry just those." : ".") +
+        " Fit badges have updated — edit any line freely.";
+      setAiStatus(msg, failed.length ? "err" : "ok");
+      refreshStatsOnly();
+      return;
+    }
+    var i = todo[k];
+    setAiStatus("Translating " + (k + 1) + " / " + todo.length + " — cue #" + cues[i].index + " (" + cues[i].duration.toFixed(1) + "s slot)…", "");
+    aiChat(aiPrompt(cues[i]), 800).then(function (line) {
+      if (line) {
+        dubs[i] = line;
+        var ta = document.querySelector('.dub[data-pos="' + i + '"]');
+        if (ta) { ta.value = line; updateFitCell(i); }
+        filled++;
+      } else { failed.push(cues[i].index); markRowError(i, "Empty reply"); }
+    }).catch(function (e) {
+      failed.push(cues[i].index);
+      lastErr = e.message || String(e);
+      markRowError(i, lastErr);
+    }).then(function () {
+      done++;
+      document.getElementById("aiProgressBar").style.width = Math.round(done / todo.length * 100) + "%";
+      refreshStatsOnly();
+      step(k + 1);
+    });
+  }
+  step(0);
+}
+function aiTest() {
+  var s = aiSettings();
+  if (!s.key) { setAiStatus("Paste your own API key first — it stays in this browser only.", "err"); document.getElementById("aiKey").focus(); return; }
+  if (!s.base || !s.model) { setAiStatus("Base URL and model must both be filled in.", "err"); return; }
+  setAiStatus("Testing connection to " + s.base + " …", "");
+  document.getElementById("aiTestBtn").disabled = true;
+  aiChat([{ role: "user", content: "Reply with exactly: OK" }], 60).then(function (out) {
+    setAiStatus("Connection works ✓ — model replied: “" + out + "”. Now load lines and press “AI: fill all Hindi lines”.", "ok");
+  }).catch(function (e) {
+    setAiStatus("Connection failed: " + (e.message || String(e)), "err");
+  }).then(function () {
+    document.getElementById("aiTestBtn").disabled = false;
+  });
+}
+
+/* ================= Wiring ================= */
+document.getElementById("fileInput").addEventListener("change", function (e) {
+  var f = e.target.files[0];
+  if (!f) return;
+  var r = new FileReader();
+  r.onload = function () { document.getElementById("pasteBox").value = r.result; loadText(r.result); };
+  r.readAsText(f);
+});
+document.getElementById("parsePasteBtn").addEventListener("click", function () {
+  loadText(document.getElementById("pasteBox").value);
+});
+document.getElementById("loadSampleBtn").addEventListener("click", function () {
+  document.getElementById("pasteBox").value = DEMO_SRT;
+  loadText(DEMO_SRT);
+});
+document.getElementById("clearBtn").addEventListener("click", function () {
+  document.getElementById("pasteBox").value = "";
+  cues = []; dubs = {}; render();
+});
+document.getElementById("exportCsvBtn").addEventListener("click", exportCSV);
+document.getElementById("exportSrtBtn").addEventListener("click", exportSRT);
+["aiBase","aiModel","aiKey"].forEach(function (id) {
+  document.getElementById(id).addEventListener("input", saveAiSettings);
+});
+document.getElementById("aiFillBtn").addEventListener("click", aiFillAll);
+document.getElementById("aiTestBtn").addEventListener("click", aiTest);
+document.getElementById("aiStopBtn").addEventListener("click", function () { aiStop = true; });
+var dz = document.getElementById("dropzone");
+["dragover","dragenter"].forEach(function (ev) { dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.add("over"); }); });
+["dragleave","drop"].forEach(function (ev) { dz.addEventListener(ev, function (e) { e.preventDefault(); dz.classList.remove("over"); }); });
+dz.addEventListener("drop", function (e) {
+  var f = e.dataTransfer.files && e.dataTransfer.files[0];
+  if (!f) return;
+  var r = new FileReader();
+  r.onload = function () { document.getElementById("pasteBox").value = r.result; loadText(r.result); };
+  r.readAsText(f);
+});
+loadAiSettings();
+render();
+</script>
+</body>
+</html>
